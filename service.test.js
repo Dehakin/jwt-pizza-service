@@ -4,6 +4,7 @@ const { Role, DB } = require('./src/database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let randomUserAuthToken;
+let testUserAuthToken;
 let testUserId;
 
 
@@ -59,8 +60,8 @@ function createRandomFranchise(admins) {
 beforeAll(async () => {
     testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
     const registerRes = await request(app).post('/api/auth').send(testUser);
-    testUserAuthToken = registerRes.body.token;
     testUserId = registerRes.body.user.id;
+    testUserAuthToken = registerRes.body.token;
   });
 
 // LOGIN/LOGOUT/UPDATE USER TESTS
@@ -138,26 +139,25 @@ test('add item to menu', async () => {
 
     // add to menu
     const addItemRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newItem);
-
     expect(addItemRes.status).toBe(200);
+
     const secondLength = addItemRes.body.length;
     expect(originalLength).toBe(secondLength - 1);
 
-    const { id, ...receivedItem } = addItemRes.body[secondLength - 1];
-    expect(receivedItem).toMatchObject(newItem);
+    // response: [{ id: 1, title: 'Student', description: 'No topping, no sauce, just carbs', image: 'pizza9.png', price: 0.0001 }],
+    const { title, description, image, price } = addItemRes.body[secondLength - 1];
+    const receivedObject = {title, description, image, price};
+    expect(receivedObject).toMatchObject(newItem);
 });
 
 // create and get orders FIXME (get some code for making franchises up and running)
-test('create and get orders', async () => {
+test('create orders', async () => {
     const newUser = await createAndRegisterRandomUser();
     const newUserLoginRes = await loginUser(newUser);
 
     // get orders for this new user
-    const newUserGetOrders = await request(app).get('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`);
-    expect(newUserGetOrders.status).toBe(200);
-
-    const { dinerId, ...orders } = newUserGetOrders.body;
-    const originalLength = newUserGetOrders.body.length;
+    const newUserGetOrdersRes = await request(app).get('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`);
+    expect(newUserGetOrdersRes.status).toBe(200);
 
     // create a franchise with an admin
     const adminUser = await createAdmin();
@@ -167,6 +167,21 @@ test('create and get orders', async () => {
     const createFranchiseRes = await request(app).post('/api/franchise').set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newFranchise);
     expect(createFranchiseRes.status).toBe(200);
 
+    // create store
+    const newStore = {franchiseId: createFranchiseRes.body.id, name: generateRandomName()};
+    const addStoreRes = await request(app).post(`/api/franchise/${newStore.franchiseId}/store`).set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newStore);
+    expect(addStoreRes.status).toBe(200);
+
+
+    // add new item to menu
+    const newItem = createRandomPizzaObject();
+    const addItemRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newItem);
+    expect(addItemRes.status).toBe(200);
+
+    const order = {franchiseId : createFranchiseRes.body.id, storeId : addStoreRes.body.id, items: [{menuId : addItemRes.body[0].id, description : addItemRes.body[0].description, price : addItemRes.body[0].price}]};
+    console.log(order);
+    const makeOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`).send(order);
+    expect(makeOrderRes.status).toBe(200);
 });
 
 
@@ -251,7 +266,6 @@ test('delete franchise', async () => {
     // make a franchise for test user
     const newFranchise = createRandomFranchise({"email" : testUser.email});
     const createFranchiseRes = await request(app).post('/api/franchise').set('Authorization', `Bearer ${loginRes.body.token}`).send(newFranchise);
-    const adminInfo = createFranchiseRes.body.admins[0];
     expect(createFranchiseRes.status).toBe(200);
     
     // delete it 
