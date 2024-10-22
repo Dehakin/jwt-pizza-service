@@ -62,6 +62,23 @@ jobs:
           git add .
           git commit -m "generated"
           git push
+
+      - name: Create dist
+        run: |
+          mkdir dist
+          cp Dockerfile dist
+          cp -r src/* dist
+          cp *.json dist
+          sed -i "s/root/${{ secrets.DB_USERNAME }}/g" dist/config.js
+          sed -i "s/tempdbpassword/${{ secrets.DB_PASSWORD }}/g" dist/config.js
+          sed -i "s/127.0.0.1/${{ secrets.DB_HOSTNAME }}/g" dist/config.js
+
+      - name: Update distribution artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: dist/
+          
     services:
       mysql:
         image: mysql:8.0.29
