@@ -5,27 +5,27 @@
       "TaskVersion": {
         "Type": "String",
         "Description": "JWT Pizza Service Task Definition version to initialize the ECS service with",
-        "Default": ""
+        "Default": "8"
       },
       "CertificateArn": {
         "Type": "String",
         "Description": "Load balancer web certificate ARN use to support HTTPS on the ALB",
-        "Default": ""
+        "Default": "arn:aws:acm:us-east-1:334883811416:certificate/66f57ce1-8a73-4094-a0ac-6708c6bd9db4"
       },
       "SecurityGroupIDs": {
         "Type": "CommaDelimitedList",
         "Description": "ECS service and ALB Security groups",
-        "Default": ""
+        "Default": "sg-0f54e6e39cf3fabb5"
       },
       "SubnetIDs": {
         "Type": "CommaDelimitedList",
         "Description": "A comma delimited list of VPC network subnets for the ECS service and ALB",
-        "Default": ""
+        "Default": "subnet-02b72d08b726fbfdd,subnet-0aa4f19cfb7b0b707,subnet-0c6bbce79bb4865ff,subnet-0e3f0628b9e81b8f2,subnet-0261d4b8ad4ee7d45,subnet-06a881b09188454ab"
       },
       "VpcID": {
         "Type": "String",
         "Description": "The ID of the VPC for the ALB",
-        "Default": "",
+        "Default": "vpc-0bce95bb602676fbf",
         "AllowedPattern": "^(?:vpc-[0-9a-f]{8,17}|)$",
         "ConstraintDescription": "VPC ID must begin with 'vpc-' and have a valid uuid"
       }
