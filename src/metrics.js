@@ -32,6 +32,9 @@ class MetricsTracker {
                 this.sendMetricToGrafana('putRequests', 'put', 'amount', this.httpData.put);
                 this.sendMetricToGrafana('postRequests', 'post', 'amount', this.httpData.post);
                 this.sendMetricToGrafana('deleteRequests', 'delete', 'amount', this.httpData.delete);
+                
+                // send system data
+                this.sendMetricToGrafana
             }
             catch (error) {
                 console.log('Error sending metrics', error);
@@ -60,7 +63,9 @@ class MetricsTracker {
         next();
     };
 
-
+    sendSystemDataToGrafana(metricPrefix, metricName, metricValue) {
+        const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
+    }
 
     sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
@@ -74,7 +79,7 @@ class MetricsTracker {
             if (!response.ok) {
               console.error('Failed to push metrics data to Grafana');
             } else {
-              //console.log(`Pushed ${metric}`);
+              console.log(`Pushed ${metric}`);
             }
           })
           .catch((error) => {
