@@ -34,8 +34,8 @@ class MetricsTracker {
                 this.sendMetricToGrafana('deleteRequests', 'delete', 'amount', this.httpData.delete);
                 
                 // send system data
-                /*this.sendGenericMetricToGrafana('cpuUsage', 'cpu', this.getCpuUsagePercentage());
-                this.sendGenericMetricToGrafana('memoryUsage', 'memory', this.get)*/
+                this.sendGenericMetricToGrafana('cpuUsage', 'cpu', this.getCpuUsagePercentage());
+                this.sendGenericMetricToGrafana('memoryUsage', 'memory', this.getMemoryUsagePercentage());
             }
             catch (error) {
                 console.log('Error sending metrics', error);
@@ -64,9 +64,24 @@ class MetricsTracker {
         next();
     };
 
-    /*sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
+    sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
-    }*/
+        fetch(`${config.metrics.url}`, {
+            method: 'post',
+            body: metric,
+            headers: { Authorization: `Bearer ${config.metrics.userId}:${config.metrics.apiKey}` },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                console.error('Failed to push metrics data to Grafana');
+              } else {
+                console.log(`Pushed ${metric}`);
+              }
+            })
+            .catch((error) => {
+              console.error('Error pushing metrics:', error);
+            });
+    }
 
     sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
