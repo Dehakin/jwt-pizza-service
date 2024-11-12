@@ -34,7 +34,8 @@ class MetricsTracker {
                 this.sendMetricToGrafana('deleteRequests', 'delete', 'amount', this.httpData.delete);
                 
                 // send system data
-                this.sendMetricToGrafana
+                /*this.sendGenericMetricToGrafana('cpuUsage', 'cpu', this.getCpuUsagePercentage());
+                this.sendGenericMetricToGrafana('memoryUsage', 'memory', this.get)*/
             }
             catch (error) {
                 console.log('Error sending metrics', error);
@@ -63,9 +64,9 @@ class MetricsTracker {
         next();
     };
 
-    sendSystemDataToGrafana(metricPrefix, metricName, metricValue) {
+    /*sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
-    }
+    }*/
 
     sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
