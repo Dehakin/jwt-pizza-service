@@ -24,7 +24,7 @@ class MetricsTracker {
 
         // add more containers here when necessary for other data types
 
-        setInterval(() => {
+        const timer = setInterval(() => {
             try {
                 // send http data
                 this.sendMetricToGrafana('totalRequests', 'all', 'total', this.httpData.total);
@@ -33,7 +33,7 @@ class MetricsTracker {
                 console.log('Error sending metrics', error);
             }
         }, 10000);
-
+        timer.unref();
     }
     httpTracker = (req,res,next) => {
         const method = req.method;
@@ -70,7 +70,7 @@ class MetricsTracker {
             if (!response.ok) {
               console.error('Failed to push metrics data to Grafana');
             } else {
-              console.log(`Pushed ${metric}`);
+              //console.log(`Pushed ${metric}`);
             }
           })
           .catch((error) => {
