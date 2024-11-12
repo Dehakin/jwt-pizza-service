@@ -9,6 +9,7 @@
 
 */
 const os = require('os');
+const config = require('./config.js');
 
 class MetricsTracker {
     constructor() {
@@ -23,7 +24,7 @@ class MetricsTracker {
 
         // add more containers here when necessary for other data types
 
-        const timer = setInterval(() => {
+        setInterval(() => {
             try {
                 // send http data
                 this.sendMetricToGrafana('totalRequests', 'all', 'total', this.httpData.total);
