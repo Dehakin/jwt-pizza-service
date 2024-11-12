@@ -22,12 +22,16 @@ class MetricsTracker {
             unknown : 0
         }
 
-        // add more containers here when necessary for other data types
+        // add more objects to hold data here when necessary
 
         const timer = setInterval(() => {
             try {
                 // send http data
                 this.sendMetricToGrafana('totalRequests', 'all', 'total', this.httpData.total);
+                this.sendMetricToGrafana('getRequests', 'get', 'amount', this.httpData.get);
+                this.sendMetricToGrafana('putRequests', 'put', 'amount', this.httpData.put);
+                this.sendMetricToGrafana('postRequests', 'post', 'amount', this.httpData.post);
+                this.sendMetricToGrafana('deleteRequests', 'delete', 'amount', this.httpData.delete);
             }
             catch (error) {
                 console.log('Error sending metrics', error);
