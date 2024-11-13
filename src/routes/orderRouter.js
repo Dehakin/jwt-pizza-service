@@ -90,6 +90,7 @@ orderRouter.post(
     const j = await r.json();
     console.log("router after await r.json");
     if (r.ok) {
+      console.log("In r.ok, before send");
       res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
     } else {
       console.log("router before sending 500");
