@@ -10,8 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(setAuthUser);
 
-// hope this works
+// metrics middleware
 app.use(metrics.httpTracker);
+app.use(metrics.authenticationTracker);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
