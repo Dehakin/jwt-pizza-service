@@ -111,13 +111,14 @@ class MetricsTracker {
                 // go through each item, get total # of pizzas and total price
                 let numPizzas = 0;
                 let cost = 0;
-                const items = res.body.order.items;
+                const items = req.body.order.items;
                 for (let item of items) {   
                     cost += item.price;
                     numPizzas += 1;
                 }
-
-                if (res.statusCode >= 400) {
+                
+                const statusCode = res.statusCode;
+                if (statusCode >= 400) {
                     this.pizzaData.creationFailures += numPizzas;
                 }
                 else {
