@@ -2,7 +2,7 @@
 /*
 1. http requests by method/minute (total requests, get, put, post, delete requests) [done?]
 2. Active users
-3. Authentication attempts/minute (succeeded vs failed)
+3. Authentication attempts/minute (succeeded vs failed) [done?]
 4. CPU and memory usage percentage [done?]
 5. Pizzas (sold per minute, creation failures, revenue per minute)
 6. Latency (by endpoint, and for pizza creation)
@@ -78,7 +78,7 @@ class MetricsTracker {
             let send = res.send;
             res.send = (resBody) => {
                 const statusCode = res.statusCode;
-                if (statusCode >= 500) {
+                if (statusCode >= 400) {
                     this.authData.authFailures += 1;
                 }
                 else {
