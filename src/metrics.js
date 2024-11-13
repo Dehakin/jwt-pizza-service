@@ -1,9 +1,9 @@
 // use this file for "all the code necessary to interact with Grafana"
 /*
-1. http requests by method/minute (total requests, get, put, post, delete requests)
+1. http requests by method/minute (total requests, get, put, post, delete requests) [done?]
 2. Active users
 3. Authentication attempts/minute (succeeded vs failed)
-4. CPU and memory usage percentage
+4. CPU and memory usage percentage [done?]
 5. Pizzas (sold per minute, creation failures, revenue per minute)
 6. Latency (by endpoint, and for pizza creation)
 
@@ -23,6 +23,10 @@ class MetricsTracker {
         }
 
         // add more objects to hold data here when necessary
+        this.authData = {
+            authSuccesses : 0,
+            authFailures : 0
+        }
 
         const timer = setInterval(() => {
             try {
@@ -36,6 +40,11 @@ class MetricsTracker {
                 // send system data
                 this.sendGenericMetricToGrafana('cpuUsage', 'cpu', this.getCpuUsagePercentage());
                 this.sendGenericMetricToGrafana('memoryUsage', 'memory', this.getMemoryUsagePercentage());
+
+                // authentication data
+                this.sendGenericMetricToGrafana('authSuccesses', 'successes', this.authData.authSuccesses);
+                this.sendGenericMetricToGrafana('authFailures', 'failures', this.authData.authFailures);
+
             }
             catch (error) {
                 console.log('Error sending metrics', error);
@@ -43,7 +52,7 @@ class MetricsTracker {
         }, 10000);
         timer.unref();
     }
-    httpTracker = (req,res,next) => {
+    httpTracker = (req, res, next) => {
         const method = req.method;
         if (method == "GET"){
             this.httpData.get += 1;
@@ -64,8 +73,27 @@ class MetricsTracker {
         next();
     };
 
+    authenticationTracker = (req, res, next) => {
+        if (req.method == 'PUT' && req.path.endsWith('/api/auth')) {
+            let send = res.send;
+            res.send = (resBody) => {
+                const statusCode = res.statusCode;
+                if (statusCode >= 500) {
+                    this.authData.authFailures += 1;
+                }
+                else {
+                    this.authData.authSuccesses += 1;
+                }
+                res.send = send;
+                return res.send(resBody);
+            };
+        }
+        next();
+    };
+
     sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
+    
         fetch(`${config.metrics.url}`, {
             method: 'post',
             body: metric,
