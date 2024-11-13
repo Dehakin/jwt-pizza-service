@@ -4,16 +4,16 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
-const metrics = require('./metrics.js');
+//const metrics = require('./metrics.js');
 
 const app = express();
 app.use(express.json());
 app.use(setAuthUser);
 
 // metrics middleware
-app.use(metrics.httpTracker);
-app.use(metrics.authenticationTracker);
-app.use(metrics.pizzaTracker);
+// app.use(metrics.httpTracker);
+// app.use(metrics.authenticationTracker);
+// app.use(metrics.pizzaTracker);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');

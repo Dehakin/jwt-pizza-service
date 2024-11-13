@@ -77,26 +77,20 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    console.log("router before all");
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
-    console.log("router after db.addDinerOrder");
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
-    console.log("router after fetch");
     const j = await r.json();
-    console.log("router after await r.json");
     if (r.ok) {
-      console.log("In r.ok, before send");
+      console.log(j);
       res.status(200).send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
     } else {
-      console.log("router before sending 500");
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
     }
-    console.log("router after end");
   })
 );
 
