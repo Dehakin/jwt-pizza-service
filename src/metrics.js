@@ -112,7 +112,7 @@ class MetricsTracker {
                 let numPizzas = 0;
                 let cost = 0;
                 const items = req.body.order.items;
-                for (let item of items) {   
+                for (const item of items) {   
                     cost += item.price;
                     numPizzas += 1;
                 }
