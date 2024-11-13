@@ -193,6 +193,7 @@ test('create orders', async () => {
     const order = {franchiseId : createFranchiseRes.body.id, storeId : addStoreRes.body.id, items: [{menuId : addItemRes.body[0].id, description : addItemRes.body[0].description, price : addItemRes.body[0].price}]};
     console.log(order);
     const makeOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`).send(order);
+    console.log(makeOrderRes);
     expect(makeOrderRes.status).toBe(200);
 
     console.log("after make order request");
