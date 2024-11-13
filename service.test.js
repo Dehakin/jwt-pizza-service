@@ -155,22 +155,32 @@ test('create orders', async () => {
     const newUser = await createAndRegisterRandomUser();
     const newUserLoginRes = await loginUser(newUser);
 
+    console.log("before get orders");
+
     // get orders for this new user
     const newUserGetOrdersRes = await request(app).get('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`);
     expect(newUserGetOrdersRes.status).toBe(200);
+
+    console.log("after get orders");
 
     // create a franchise with an admin
     const adminUser = await createAdmin();
     const adminLoginRes = await loginUser(adminUser);
 
+    console.log("After create franchise, before send");
+
     const newFranchise = createRandomFranchise({"email" : adminUser.email});
     const createFranchiseRes = await request(app).post('/api/franchise').set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newFranchise);
     expect(createFranchiseRes.status).toBe(200);
+
+    console.log("After create franchise request");
 
     // create store
     const newStore = {franchiseId: createFranchiseRes.body.id, name: generateRandomName()};
     const addStoreRes = await request(app).post(`/api/franchise/${newStore.franchiseId}/store`).set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newStore);
     expect(addStoreRes.status).toBe(200);
+
+    console.log("after add store request");
 
 
     // add new item to menu
@@ -178,10 +188,14 @@ test('create orders', async () => {
     const addItemRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminLoginRes.body.token}`).send(newItem);
     expect(addItemRes.status).toBe(200);
 
+    console.log("after add item request");
+
     const order = {franchiseId : createFranchiseRes.body.id, storeId : addStoreRes.body.id, items: [{menuId : addItemRes.body[0].id, description : addItemRes.body[0].description, price : addItemRes.body[0].price}]};
     console.log(order);
     const makeOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${newUserLoginRes.body.token}`).send(order);
     expect(makeOrderRes.status).toBe(200);
+
+    console.log("after make order request");
 });
 
 

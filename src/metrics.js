@@ -112,7 +112,7 @@ class MetricsTracker {
                 let numPizzas = 0;
                 let cost = 0;
                 const items = res.body.order.items;
-                if (!Array.isArray(items)) { console.log('items wasnt an array!!!'); }
+                //if (!Array.isArray(items)) { console.log('items wasnt an array!!!'); }
                 for (const item of items) {   
                     cost += item.price;
                     numPizzas += 1;
