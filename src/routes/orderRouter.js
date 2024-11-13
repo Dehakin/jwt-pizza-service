@@ -91,7 +91,7 @@ orderRouter.post(
     console.log("router after await r.json");
     if (r.ok) {
       console.log("In r.ok, before send");
-      res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+      res.status(200).send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
     } else {
       console.log("router before sending 500");
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
