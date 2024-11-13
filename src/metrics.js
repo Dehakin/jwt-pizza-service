@@ -28,6 +28,12 @@ class MetricsTracker {
             authFailures : 0
         }
 
+        this.pizzaData = {
+            creationSuccesses : 0,
+            creationFailures : 0,
+            revenue : 0.0
+        }
+
         const timer = setInterval(() => {
             try {
                 // send http data
@@ -44,6 +50,11 @@ class MetricsTracker {
                 // authentication data
                 this.sendGenericMetricToGrafana('authSuccesses', 'successes', this.authData.authSuccesses);
                 this.sendGenericMetricToGrafana('authFailures', 'failures', this.authData.authFailures);
+
+                // pizza data
+                this.sendGenericMetricToGrafana('pizzasMade', 'pizzaSuccesses', this.pizzaData.creationSuccesses);
+                this.sendGenericMetricToGrafana('pizzasFailed', 'pizzaFailures', this.pizzaData.creationFailures);
+                this.sendGenericMetricToGrafana('pizzaRevenue', 'revenue', this.pizzaData.revenue);
 
             }
             catch (error) {
@@ -74,7 +85,7 @@ class MetricsTracker {
     };
 
     authenticationTracker = (req, res, next) => {
-        if (req.method == 'PUT' && req.path.endsWith('/api/auth')) {
+        if (req.method === 'PUT' && req.path.endsWith('/api/auth')) {
             let send = res.send;
             res.send = (resBody) => {
                 const statusCode = res.statusCode;
@@ -90,6 +101,37 @@ class MetricsTracker {
         }
         next();
     };
+
+    pizzaTracker = (req, res, next) => {
+        // revenue, pizza 
+        if (req.method === 'POST' && req.path.endsWith('/api/order')) {
+            // this is a pizza creation req
+            let send = res.send;
+            res.send = (resBody) => {
+                // go through each item, get total # of pizzas and total price
+                let numPizzas = 0;
+                let cost = 0;
+                const items = res.body.order.items;
+                for (let item of items) {   
+                    cost += item.price;
+                    numPizzas += 1;
+                }
+
+                if (res.statusCode >= 400) {
+                    this.pizzaData.creationFailures += numPizzas;
+                }
+                else {
+                    this.pizzaData.creationSuccesses += numPizzas;
+                    this.pizzaData.revenue += cost;
+                }
+
+                res.send = send;
+                return res.send(resBody);
+            };
+        }
+        next();
+    };
+
 
     sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
