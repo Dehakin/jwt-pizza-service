@@ -2,7 +2,7 @@
 /*
 1. http requests by method/minute (total requests, get, put, post, delete requests) [done?]
 2. Active users
-3. Authentication attempts/minute (succeeded vs failed) [inprogress]
+3. Authentication attempts/minute (succeeded vs failed) [done?]
 4. CPU and memory usage percentage [done?]
 5. Pizzas (sold per minute, creation failures, revenue per minute) [done?]
 6. Latency (by endpoint, and for pizza creation)
@@ -19,18 +19,23 @@ class MetricsTracker {
             post : 0,
             delete : 0,
             unknown : 0
-        }
+        };
 
         this.authData = {
             authSuccesses : 0,
             authFailures : 0
-        }
+        };
 
         this.pizzaData = {
             creationSuccesses : 0,
             creationFailures : 0,
             revenue : 0.0
-        }
+        };
+
+        this.latencyData = {
+            pizzaTimes : [],
+            endpoints
+        };
 
         const timer = setInterval(() => {
             try {
@@ -53,6 +58,10 @@ class MetricsTracker {
                 this.sendGenericMetricToGrafana('pizzasMade', 'pizzaSuccesses', this.pizzaData.creationSuccesses);
                 this.sendGenericMetricToGrafana('pizzasFailed', 'pizzaFailures', this.pizzaData.creationFailures);
                 this.sendGenericMetricToGrafana('pizzaRevenue', 'revenue', this.pizzaData.revenue);
+
+                // latency data
+                this.sendGenericMetricToGrafana('averagePizzaLatency', 'pizzaLatency', this.averagePizzaTimes());
+                this.latencyData.pizzaTimes = [];
 
             }
             catch (error) {
@@ -131,6 +140,14 @@ class MetricsTracker {
         }
         next();
     };*/
+
+    averagePizzaTimes() {
+        let total = 0;
+        for (const time of this.latencyData.pizzaTimes) {
+            total += time;
+        }
+        return total / this.latencyData.pizzaTimes.length;
+    }
 
     calcOrderRevenue(order) {
         const items = order.items;
