@@ -21,7 +21,6 @@ class MetricsTracker {
             unknown : 0
         }
 
-        // add more objects to hold data here when necessary
         this.authData = {
             authSuccesses : 0,
             authFailures : 0
