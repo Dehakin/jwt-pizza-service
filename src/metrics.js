@@ -2,11 +2,10 @@
 /*
 1. http requests by method/minute (total requests, get, put, post, delete requests) [done?]
 2. Active users
-3. Authentication attempts/minute (succeeded vs failed) [done?]
+3. Authentication attempts/minute (succeeded vs failed)
 4. CPU and memory usage percentage [done?]
 5. Pizzas (sold per minute, creation failures, revenue per minute)
 6. Latency (by endpoint, and for pizza creation)
-
 */
 const os = require('os');
 const config = require('./config.js');
@@ -84,7 +83,7 @@ class MetricsTracker {
         next();
     };
 
-    authenticationTracker = (req, res, next) => {
+    /*authenticationTracker = (req, res, next) => {
         if (req.method === 'PUT' && req.path.endsWith('/api/auth')) {
             let send = res.send;
             res.send = (resBody) => {
@@ -132,7 +131,17 @@ class MetricsTracker {
             };
         }
         next();
-    };
+    };*/
+
+    calcOrderRevenue(order) {
+        const items = order.items;
+        let revenue = 0;
+        for (const item of items) {
+            revenue += item.price;
+        }
+
+        return revenue;
+    }
 
 
     sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {

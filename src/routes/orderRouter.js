@@ -3,6 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
+const metrics = require('../metrics.js');
 
 const orderRouter = express.Router();
 
@@ -86,10 +87,16 @@ orderRouter.post(
     });
     const j = await r.json();
     if (r.ok) {
-      console.log(j);
-      res.status(200).send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+      res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+
+      // order succeeded, log successes and increase revenue
+      metrics.pizzaData.creationSuccesses += order.items.length;
+      metrics.pizzaData.revenue += metrics.calcOrderRevenue(order);
     } else {
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
+      
+      // order failed, log how many failed
+      metrics.pizzaData.creationFailures += order.items.length;
     }
   })
 );
