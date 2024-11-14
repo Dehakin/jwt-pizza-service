@@ -12,6 +12,7 @@ app.use(setAuthUser);
 
 // metrics middleware
 app.use(metrics.httpTracker);
+app.use(metrics.latencyTracker);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');

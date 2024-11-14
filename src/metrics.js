@@ -33,7 +33,8 @@ class MetricsTracker {
         };
 
         this.latencyData = {
-            pizzaTimes : []
+            pizzaTimes : [],
+            endpointTimes : []
         };
 
         const timer = setInterval(() => {
@@ -61,7 +62,8 @@ class MetricsTracker {
                 // latency data
                 this.sendGenericMetricToGrafana('averagePizzaLatency', 'pizzaLatency', this.averagePizzaTimes());
                 this.latencyData.pizzaTimes = [];
-
+                this.sendGenericMetricToGrafana('averageEndpointLatency', 'endpointLatency', this.latencyData.averageEndpointTimes());
+                this.latencyData.endpointTimes = [];
             }
             catch (error) {
                 console.log('Error sending metrics', error);
@@ -87,6 +89,16 @@ class MetricsTracker {
             this.httpData.unknown += 1;
         }
         this.httpData.total += 1;
+        next();
+    };
+
+    latencyTracker = (req, res, next) => {
+        const startTime = performance.now();
+
+        res.on('finish', () => {
+            const elapsedTime = performance.now() - startTime;
+            this.latencyData.endpointTimes.push(elapsedTime);
+        });
         next();
     };
 
@@ -139,6 +151,15 @@ class MetricsTracker {
         }
         next();
     };*/
+
+    averageEndpointTimes() {
+        let totalTime = 0;
+        for (const time of this.latencyData.endpointTimes) {
+            totalTime += time;
+        }
+
+        return totalTime / this.latencyData.endpointTimes.length;
+    }
 
     averagePizzaTimes() {
         let total = 0;
