@@ -72,6 +72,7 @@ class DB {
       });
 
       metrics.authData.authSuccesses += 1;
+      metrics.currentUsers += 1;
       return { ...user, roles: roles, password: undefined };
     } finally {
       connection.end();
@@ -125,6 +126,9 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `DELETE FROM auth WHERE token=?`, [token]);
+      if (metrics.currentUsers > 0) {
+        metrics.currentUsers -= 1;
+      }
     } finally {
       connection.end();
     }

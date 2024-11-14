@@ -37,6 +37,8 @@ class MetricsTracker {
             endpointTimes : []
         };
 
+        this.currentUsers = 0;
+
         const timer = setInterval(() => {
             try {
                 // send http data
@@ -64,6 +66,9 @@ class MetricsTracker {
                 this.latencyData.pizzaTimes = [];
                 this.sendGenericMetricToGrafana('averageEndpointLatency', 'endpointLatency', this.averageEndpointTimes());
                 this.latencyData.endpointTimes = [];
+
+                // active users
+                this.sendGenericMetricToGrafana('activeUsers', 'currUsers', this.currentUsers);
             }
             catch (error) {
                 console.log('Error sending metrics', error);
