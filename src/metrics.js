@@ -5,7 +5,7 @@
 3. Authentication attempts/minute (succeeded vs failed) [done?]
 4. CPU and memory usage percentage [done?]
 5. Pizzas (sold per minute, creation failures, revenue per minute) [done?]
-6. Latency (by endpoint, and for pizza creation)
+6. Latency (by endpoint, and for pizza creation) [pizza:inprogress, endpoint:notstarted]
 */
 const os = require('os');
 const config = require('./config.js');
@@ -33,8 +33,7 @@ class MetricsTracker {
         };
 
         this.latencyData = {
-            pizzaTimes : [],
-            endpoints
+            pizzaTimes : []
         };
 
         const timer = setInterval(() => {
