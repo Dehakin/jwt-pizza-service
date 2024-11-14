@@ -62,7 +62,7 @@ class MetricsTracker {
                 // latency data
                 this.sendGenericMetricToGrafana('averagePizzaLatency', 'pizzaLatency', this.averagePizzaTimes());
                 this.latencyData.pizzaTimes = [];
-                this.sendGenericMetricToGrafana('averageEndpointLatency', 'endpointLatency', this.latencyData.averageEndpointTimes());
+                this.sendGenericMetricToGrafana('averageEndpointLatency', 'endpointLatency', this.averageEndpointTimes());
                 this.latencyData.endpointTimes = [];
             }
             catch (error) {
