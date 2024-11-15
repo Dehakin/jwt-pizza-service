@@ -187,7 +187,6 @@ class MetricsTracker {
 
     sendGenericMetricToGrafana(metricPrefix, metricName, metricValue) {
         const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
-        // change
         fetch(`${config.metrics.url}`, {
             method: 'post',
             body: metric,
