@@ -54,7 +54,7 @@ class Logger {
                 requiredAuthorization: hasAuthorizationHeader,
                 requestBody: requestBody,
                 responseBody: responseBody
-            }
+            };
             this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, 'http');
         });
         next();
@@ -93,13 +93,14 @@ class Logger {
 
     sendLogToGrafana(level, logLine, type) {
         const time = this.getCurrentTime();
-        /*const labels = { component: config.source, level: level, type: type };
+        /*
+        const labels = { component: config.source, level: level, type: type };
         const values = [this.nowString(), this.sanitize(logData)];
         const logEvent = { streams: [{ stream: labels, values: [values] }] };*/
 
         const labels = {component: config.logging.source, level : level, type: type};
         const values = [time, JSON.stringify(logLine)];
-        let fullObj = {streams : [{ stream: labels, values: [values]}]};
+        let fullObj = {streams : [{ stream: labels, values: [values] }] };
         const toSend = JSON.stringify(fullObj);
 
         fetch(`${config.logging.url}`, {
