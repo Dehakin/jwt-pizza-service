@@ -55,7 +55,7 @@ class Logger {
                 requestBody: requestBody,
                 responseBody: responseBody
             }
-            this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, {});
+            this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, 'http');
         })
         next();
     };
@@ -92,25 +92,16 @@ class Logger {
     }
 
 
-    sendLogToGrafana(level, logLine, metadata) {
+    sendLogToGrafana(level, logLine, type) {
         const time = this.getCurrentTime();
-        const toSend = {
-            "streams" : [
-                {
-                    "stream" : {
-                        "component" : config.logging.source,
-                        "level" : level
-                    },
-                    "values" : [
-                        [
-                            time,
-                            logLine,
-                            metadata
-                        ]
-                    ]
-                }
-            ]
-        };
+        /*const labels = { component: config.source, level: level, type: type };
+        const values = [this.nowString(), this.sanitize(logData)];
+        const logEvent = { streams: [{ stream: labels, values: [values] }] };*/
+
+        const labels = {component: config.logging.source, level : level, type: type};
+        const values = [time, logLine];
+        const toSend = {streams : [{ stream: labels, values: [values]}]};
+        toSend = JSON.stringify(toSend);
 
         fetch(`${config.logging.url}`, {
             method: 'post',
