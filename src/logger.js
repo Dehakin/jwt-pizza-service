@@ -56,7 +56,7 @@ class Logger {
                 responseBody: responseBody
             }
             this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, 'http');
-        })
+        });
         next();
     };
     /*
@@ -91,7 +91,6 @@ class Logger {
         return (Math.floor(Date.now() / 1000) * 1000000000).toString();
     }
 
-
     sendLogToGrafana(level, logLine, type) {
         const time = this.getCurrentTime();
         /*const labels = { component: config.source, level: level, type: type };
@@ -99,9 +98,9 @@ class Logger {
         const logEvent = { streams: [{ stream: labels, values: [values] }] };*/
 
         const labels = {component: config.logging.source, level : level, type: type};
-        const values = [time, logLine];
-        let toSend = {streams : [{ stream: labels, values: [values]}]};
-        toSend = JSON.stringify(toSend);
+        const values = [time, JSON.stringify(logLine)];
+        let fullObj = {streams : [{ stream: labels, values: [values]}]};
+        const toSend = JSON.stringify(fullObj);
 
         fetch(`${config.logging.url}`, {
             method: 'post',
