@@ -100,7 +100,7 @@ class Logger {
 
         const labels = {component: config.logging.source, level : level, type: type};
         const values = [time, logLine];
-        const toSend = {streams : [{ stream: labels, values: [values]}]};
+        let toSend = {streams : [{ stream: labels, values: [values]}]};
         toSend = JSON.stringify(toSend);
 
         fetch(`${config.logging.url}`, {
