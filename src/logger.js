@@ -17,7 +17,7 @@
 const config = require('./config.js');
 
 class Logger {
-    constructor() {
+    /*constructor() {
         // an array for each kind of data. After sending, reset to empty structures.
 
         const timer = setInterval (() => {
@@ -30,7 +30,7 @@ class Logger {
         }, 10000);
         timer.unref();
 
-    }
+    }*/
 
     httpLogger = (req, res, next) => {
         let originalSend = res.send;
@@ -57,6 +57,7 @@ class Logger {
             }
             this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, {});
         })
+        next();
     };
     /*
 
