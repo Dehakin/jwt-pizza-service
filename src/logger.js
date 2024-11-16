@@ -81,6 +81,11 @@ class Logger {
     }
     */
 
+    sanitizePasswords (logString) {
+        logString = logString.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
+        return logString;
+    }
+
     statusCodeToLevel (code) {
         if (code >= 500) return 'warn';
         else if (code >= 400) return 'error';
@@ -102,7 +107,7 @@ class Logger {
         const labels = {component: config.logging.source, level : level, type: type};
         const values = [time, JSON.stringify(logLine)];
         let fullObj = {streams : [{ stream: labels, values: [values] }] };
-        const toSend = JSON.stringify(fullObj);
+        let toSend = this.sanitizePasswords(JSON.stringify(fullObj));
 
         fetch(`${config.logging.url}`, {
             method: 'post',
