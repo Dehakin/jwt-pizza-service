@@ -40,7 +40,8 @@ class Logger {
         const hasAuthorizationHeader = !!req.headers.authorization;
         const requestBody = req.body;
         
-        res.send = (body) => {
+        // this is causing problems
+        res.send = function (body) {
             responseBody = body;
             originalSend.call(this, body);
         };
@@ -52,8 +53,8 @@ class Logger {
                 path: path,
                 statusCode : statusCode,
                 requiredAuthorization: hasAuthorizationHeader,
-                requestBody: requestBody,
-                responseBody: responseBody
+                requestBody: JSON.stringify(requestBody),
+                responseBody: JSON.stringify(responseBody)
             };
             this.sendLogToGrafana(this.statusCodeToLevel(statusCode), logLine, 'http');
         });
@@ -112,6 +113,7 @@ class Logger {
             }
         }).then((res) => {
             if (!res.ok) console.log('Failed to send log to Grafana!!');
+            //else console.log('Sent log data to grafana of type:', type);
         });
     }
 
